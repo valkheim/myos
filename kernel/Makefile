@@ -31,9 +31,14 @@ KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
 kernel/kernel.o \
 
+MM_OBJS=\
+mm/gdt.o \
+mm/gdt_flush.o \
+
 OBJS=\
 $(ARCHDIR)/crti.o \
 $(ARCHDIR)/crtbegin.o \
+$(MM_OBJS) \
 $(KERNEL_OBJS) \
 $(ARCHDIR)/crtend.o \
 $(ARCHDIR)/crtn.o \
@@ -42,6 +47,7 @@ LINK_LIST=\
 $(LDFLAGS) \
 $(ARCHDIR)/crti.o \
 $(ARCHDIR)/crtbegin.o \
+$(MM_OBJS) \
 $(KERNEL_OBJS) \
 $(LIBS) \
 $(ARCHDIR)/crtend.o \
