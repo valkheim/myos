@@ -7,5 +7,7 @@
 
 void kernel_main(void) {
   terminal_initialize();
-  printf("Hello, kernel World!\n");
+  printf("Hello kernel !\n");
+  for (char i = 'a' ; i < 'd'; ++i)
+    printf("Hello, %c\n", i);
 }

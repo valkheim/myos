@@ -5,5 +5,6 @@
 #define HAVE_STDIO_H 1
 #define HAVE_STRING_H 1
 #define HAVE_SYS_CDEFS_H 1
+#define HAVE_SYS_IO_H 1
 
 #endif
