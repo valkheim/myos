@@ -1,5 +1,5 @@
-//#ifndef _KERNEL_MEMORY_GDT_H
-//#define _KERNEL_MEMORY_GDT_H
+#ifndef _KERNEL_GDT_H
+#define _KERNEL_GDT_H
 
 #include <stdint.h>
 
@@ -30,6 +30,9 @@ typedef struct __attribute__((packed)) {
   uint32_t base;        // The address of the first gdt_entry_t struct.
 } gdt_ptr_t;
 
-void init_descriptor_tables(void);
+// Implementation in gdt_flush.S
+extern void gdt_flush(uint32_t);
 
-//#endif
+void init_gdt(void);
+
+#endif
