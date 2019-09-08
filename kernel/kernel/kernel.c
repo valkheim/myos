@@ -26,7 +26,7 @@ void kernel_main(void) {
 
   /* test timer (PIT) */
   asm volatile ("int $0x20"); // trigger with int 0x20
-  init_timer(60); // trigger with IRQ0
+  init_timer(50); // trigger with IRQ0
 
   while(1) {
     /* Halt CPU waiting for next interrupt */

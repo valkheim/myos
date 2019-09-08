@@ -8,18 +8,15 @@ uint32_t tick = 0;
 
 static void timer_callback(registers_t regs)
 {
-  terminal_writestring("Tick");
+  terminal_writestring("Tick\n");
   tick++;
   (void)regs;
 }
 
 void init_timer(uint32_t frequency)
 {
-  terminal_writestring("init timer\n");
-
   // Firstly, register our timer callback.
   register_interrupt_handler(IRQ0, &timer_callback);
-  terminal_writestring("init timer0\n");
 
   // The value we send to the PIT is the value to divide it's input clock
   // (1193182 Hz) by, to get our required frequency. Important to note is
@@ -41,6 +38,4 @@ void init_timer(uint32_t frequency)
   // out %al, $0x40
   outb(0x40, l);
   outb(0x40, h);
-
-  terminal_writestring("init timer1\n");
 }
