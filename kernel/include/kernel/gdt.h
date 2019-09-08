@@ -30,9 +30,6 @@ typedef struct __attribute__((packed)) {
   uint32_t base;        // The address of the first gdt_entry_t struct.
 } gdt_ptr_t;
 
-// Implementation in gdt_flush.S
-extern void gdt_flush(uint32_t);
-
 void init_gdt(void);
 
 #endif

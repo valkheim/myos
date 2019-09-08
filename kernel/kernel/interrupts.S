@@ -1,3 +1,4 @@
+.section .text
 # Macro for interrupt handler which does not push an error (we push a dummy val)
 .macro isr_noerr num
 .global isr\num
@@ -50,8 +51,7 @@ isr_noerr 29
 isr_noerr 30
 isr_noerr 31
 
-
-.extern isr_common_handler
+.extern isr_handler
 
 isr_stub:
 	pusha
@@ -66,7 +66,7 @@ isr_stub:
 	movw	%ax, %fs
 	movw	%ax, %gs
 
-	call	isr_common_handler
+	call	isr_handler
 
 	pop	%eax
 	movl	%esi, %eax
@@ -93,7 +93,6 @@ irq\num:
 	jmp	irq_stub
 .endm
 
-
 irq 0, 32
 irq 1, 33
 irq 2, 34
@@ -111,7 +110,8 @@ irq 13, 45
 irq 14, 46
 irq 15, 47
 
-.extern irq_common_handler
+.extern irq_handler
+
 irq_stub:
 	pusha
 
@@ -125,7 +125,7 @@ irq_stub:
 	movw	%ax, %fs
 	movw	%ax, %gs
 
-	call	irq_common_handler
+	call	irq_handler
 
 	pop	%ebx
 	movl	%esi, %ebx

@@ -30,13 +30,14 @@ LIBS:=$(LIBS) $(KERNEL_ARCH_LIBS)
 KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
 kernel/kernel.o \
-kernel/gdt.o \
-kernel/gdt_flush.o \
-kernel/idt.o \
 kernel/idt_flush.o \
 kernel/interrupts.o \
+kernel/gdt_flush.o \
+kernel/gdt.o \
+kernel/idt.o \
 kernel/isr.o \
 kernel/irq.o \
+kernel/pit.o \
 
 MM_OBJS=\
 

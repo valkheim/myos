@@ -1,11 +1,11 @@
 .section .text
-.global idt_flush
+.global load_idt
 
-.type idt_flush, @function
+.type load_idt, @function
 # void load_idt(idt_ptr_t *)
-idt_flush:
+load_idt:
 	movl	4(%esp),%eax
 	lidt	(%eax)
 	ret
 
-.size idt_flush, . - idt_flush
+.size load_idt, . - load_idt

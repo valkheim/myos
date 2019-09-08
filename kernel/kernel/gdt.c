@@ -1,5 +1,8 @@
 #include <kernel/gdt.h>
 
+// Implementation in gdt_flush.S
+extern void load_gdt(uint32_t);
+
 gdt_entry_t gdt_entries[GDT_ENTRIES];
 gdt_ptr_t   gdt_ptr;
 
@@ -27,5 +30,5 @@ void init_gdt(void) {
   gdt_set_gate(3, 0, 0xFFFFFFFF, 0xFA, 0xCF); // User mode code segment
   gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); // User mode data segment
 
-  gdt_flush((uint32_t)&gdt_ptr);
+  load_gdt((uint32_t)&gdt_ptr);
 }

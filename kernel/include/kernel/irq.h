@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include <kernel/isr.h> // registers_t
-#include <sys/io.h>
 
 #define IRQ0  (32)
 #define IRQ1  (33)

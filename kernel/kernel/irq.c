@@ -1,12 +1,15 @@
 #include <stdint.h>
 #include <kernel/irq.h>
+#include <kernel/tty.h>
+#include <sys/io.h>
 
 isr_t interrupt_handlers[256];
 
 // interrupts.S : IRQ handler.
-void irq_common_handler(registers_t regs) {
+void irq_handler(registers_t regs) {
   // Send an EOI (end of interrupt) signal to the PICs.
   // If this interrupt involved the slave.
+  terminal_writestring("received hard interrupt !\n");
   if (regs.int_no >= 40)
   {
     // Send reset signal to slave.
@@ -23,5 +26,6 @@ void irq_common_handler(registers_t regs) {
 }
 
 void register_interrupt_handler(uint8_t n, isr_t handler) {
+  terminal_writestring("register int handler\n");
   interrupt_handlers[n] = handler;
 }
