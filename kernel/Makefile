@@ -36,6 +36,7 @@ kernel/idt.o \
 kernel/idt_flush.o \
 kernel/interrupts.o \
 kernel/isr.o \
+kernel/irq.o \
 
 MM_OBJS=\
 
