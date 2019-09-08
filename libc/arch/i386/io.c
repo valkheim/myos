@@ -5,6 +5,7 @@
 # include <sys/io.h>
 #endif
 
+#if defined(__is_libk)
 // Write byte value to port
 void outb(uint16_t port, uint8_t value)
 {
@@ -26,3 +27,4 @@ uint16_t inw(uint16_t port)
   asm volatile ("inw %1, %0" : "=a" (ret) : "dN" (port));
   return ret;
 }
+#endif
