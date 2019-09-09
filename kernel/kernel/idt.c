@@ -110,7 +110,7 @@ void init_idt(void) {
   idt_set_gate(38, (uint32_t)irq6 , 0x08, 0x8E); // Floppy disk controller
   idt_set_gate(39, (uint32_t)irq7 , 0x08, 0x8E); // Parallel port LPT1
   // slave 8256
-  idt_set_gate(40, (uint32_t)irq8 , 0x08, 0x8E); // RTC
+  idt_set_gate(40, (uint32_t)irq8 , 0x08, 0x8E); // RTC (Real Time Clock)
   idt_set_gate(41, (uint32_t)irq9 , 0x08, 0x8E);
   idt_set_gate(42, (uint32_t)irq10, 0x08, 0x8E);
   idt_set_gate(43, (uint32_t)irq11, 0x08, 0x8E);
