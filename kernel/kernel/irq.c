@@ -3,7 +3,7 @@
 #include <kernel/tty.h>
 #include <sys/io.h>
 
-isr_t interrupt_handlers[256];
+isr_t interrupt_handlers[256] = {0};
 
 // interrupts.S : IRQ handler.
 void irq_handler(registers_t regs) {

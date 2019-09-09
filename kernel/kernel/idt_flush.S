@@ -4,8 +4,8 @@
 .type load_idt, @function
 # void load_idt(idt_ptr_t *)
 load_idt:
-	movl	4(%esp),%eax
-	lidt	(%eax)
+	movl	4(%esp),%eax # get argument (idt pointer)
+	lidt	(%eax) # pass idt pointer to lidt
 	ret
 
 .size load_idt, . - load_idt

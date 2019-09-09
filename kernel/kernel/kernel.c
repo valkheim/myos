@@ -19,7 +19,11 @@ void kernel_main(void) {
     printf("Hello, %c\n", i);
 
   /* test interrupts */
-  asm volatile ("int $0x3");
+  //asm volatile ("int $0x0"); // Div by zero interrupt
+  asm volatile("mov $0, %edx\n"
+      "mov $0, %eax\n"
+      "mov $0, %ecx\n"
+      "div %ecx");
 
   /* Enable interrupts after PIC re-mapping */
   asm volatile("sti");
