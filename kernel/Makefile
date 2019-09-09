@@ -38,6 +38,7 @@ kernel/idt.o \
 kernel/isr.o \
 kernel/irq.o \
 kernel/pit.o \
+kernel/keyboard.o \
 
 MM_OBJS=\
 

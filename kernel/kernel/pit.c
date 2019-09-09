@@ -1,22 +1,19 @@
 #include <kernel/pit.h>
 #include <kernel/isr.h> // registers_t
-#include <kernel/irq.h> // IRQ0
+#include <kernel/irq.h> // IRQ0_PIT
 #include <kernel/tty.h>
 #include <sys/io.h>
 
 uint32_t tick = 0;
 
-static void timer_callback(registers_t regs)
-{
-  terminal_writestring("Tick\n");
+static void timer_callback(__attribute__((unused)) registers_t regs) {
+  //terminal_writestring("Tick\n");
   tick++;
-  (void)regs;
 }
 
-void init_timer(uint32_t frequency)
-{
+void init_timer(uint32_t frequency) {
   // Firstly, register our timer callback.
-  register_interrupt_handler(IRQ0, &timer_callback);
+  register_interrupt_handler(IRQ0_PIT, &timer_callback);
 
   // The value we send to the PIT is the value to divide it's input clock
   // (1193182 Hz) by, to get our required frequency. Important to note is

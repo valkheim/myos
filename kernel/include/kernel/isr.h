@@ -12,6 +12,8 @@ typedef struct {
   uint32_t eip, cs, eflags, useresp, ss; // Pushed by the processor automatically.
 } registers_t;
 
+extern char const * fault_messages[];
+
 // ISR handlers
 extern void isr0 ();
 extern void isr1 ();

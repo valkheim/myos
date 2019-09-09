@@ -4,22 +4,22 @@
 #include <stdint.h>
 #include <kernel/isr.h> // registers_t
 
-#define IRQ0  (32)
-#define IRQ1  (33)
-#define IRQ2  (34)
-#define IRQ3  (35)
-#define IRQ4  (36)
-#define IRQ5  (37)
-#define IRQ6  (38)
-#define IRQ7  (39)
-#define IRQ8  (40)
-#define IRQ9  (41)
-#define IRQ10 (42)
-#define IRQ11 (43)
-#define IRQ12 (44)
-#define IRQ13 (45)
-#define IRQ14 (46)
-#define IRQ15 (47)
+#define IRQ0_PIT       (32) // 0x20
+#define IRQ1_KEYBOARD  (33) // 0x21
+#define IRQ2           (34) // 0x22
+#define IRQ3           (35) // 0x23
+#define IRQ4           (36) // 0x24
+#define IRQ5           (37) // 0x25
+#define IRQ6           (38) // 0x26
+#define IRQ7           (39) // 0x27
+#define IRQ8           (40) // 0x28
+#define IRQ9           (41) // 0x29
+#define IRQ10          (42) // 0x2A
+#define IRQ11          (43) // 0x2B
+#define IRQ12          (44) // 0x2C
+#define IRQ13          (45) // 0x2D
+#define IRQ14          (46) // 0x2E
+#define IRQ15          (47) // 0x2F
 
 // Enables registration of callbacks for interrupts or IRQs.
 // For IRQs, to ease confusion, use the #defines above as the

@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <kernel/irq.h>
+#include <kernel/idt.h> // PIC_(M|S)_CTRL
 #include <kernel/tty.h>
 #include <sys/io.h>
 
@@ -12,10 +13,10 @@ void irq_handler(registers_t regs) {
   if (regs.int_no >= 40)
   {
     // Send reset signal to slave.
-    outb(0xA0, 0x20);
+    outb(PIC_S_CTRL, 0x20);
   }
   // Send reset signal to master. (As well as slave, if necessary).
-  outb(0x20, 0x20);
+  outb(PIC_M_CTRL, 0x20);
 
   if (interrupt_handlers[regs.int_no] != 0)
   {

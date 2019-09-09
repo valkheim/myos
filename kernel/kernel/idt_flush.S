@@ -6,6 +6,7 @@
 load_idt:
 	movl	4(%esp),%eax # get argument (idt pointer)
 	lidt	(%eax) # pass idt pointer to lidt
+	sti
 	ret
 
 .size load_idt, . - load_idt
