@@ -2,12 +2,10 @@
 #include <kernel/isr.h> // ISR handlers
 #include <kernel/irq.h> // IRQ handlers
 #include <sys/io.h> // inb, outb
-#include <string.h> // memset
 
 extern void load_idt(uint32_t);
 
-idt_entry_t idt_entries[IDT_SIZE];
-idt_ptr_t idt_ptr;
+idt_entry_t idt_entries[IDT_SIZE] = {0};
 
 static void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags) {
   // Base
@@ -23,29 +21,34 @@ static void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags
 }
 
 void init_idt(void) {
+  idt_ptr_t idt_ptr;
+
   // Init idt pointer
   idt_ptr.limit = sizeof(idt_entry_t) * IDT_SIZE -1;
   idt_ptr.base  = (uint32_t)&idt_entries;
 
-  memset(&idt_entries, 0, sizeof(idt_entry_t) * IDT_SIZE);
-
   // Remap PIC
 
-  // ICW1 - begin initialization
-  outb(PIC_M_CTRL, 0x11);
-  outb(PIC_S_CTRL, 0x11);
+  // ICW1 - begin initialization (0x11 being the initialise command)
+  outb(PIC_M_CTRL, ICW1_INIT | ICW1_ICW4); // 0x10 | 0x01 = 0x11
+  outb(PIC_S_CTRL, ICW1_INIT | ICW1_ICW4); // 0x10 | 0x01 = 0x11
 
   // ICW2 - remap offset address of idt_entries
-  outb(PIC_M_DATA, 0x20);
-  outb(PIC_S_DATA, 0x28);
+  outb(PIC_M_DATA, 0x20); // Master PIC vector offset
+  outb(PIC_S_DATA, 0x28); // Slave PIC vector offset
+
+  // ICW3 tell Master PIC that there is a slave PIC at IRQ2 (4 = 0000 0100)
+  outb(PIC_M_DATA, 0x04);
+  // ICW3: tell Slave PIC its cascade identity (2 = 0000 0010)
+  outb(PIC_S_DATA, 0x02);
 
   // ICW3 setup cascading
   outb(PIC_M_DATA, 0x0);
   outb(PIC_S_DATA, 0x0);
 
   // mask interrupts
-  outb(PIC_M_DATA, 0x01);
-  outb(PIC_S_DATA, 0x01);
+  outb(PIC_M_DATA, ICW4_8086);
+  outb(PIC_S_DATA, ICW4_8086);
 
   // CPU interrupt layout
   idt_set_gate( 0, (uint32_t)isr0 , 0x08, 0x8E); // Divide by zero
