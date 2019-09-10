@@ -1,8 +1,8 @@
-#include <kernel/keyboard.h>
-#include <kernel/isr.h> // registers_t
-#include <kernel/irq.h> // IRQ1
-#include <kernel/idt.h> // PIC_(M|S)_(CTRL|DATA)
-#include <kernel/tty.h> // terminal_writestring
+#include <drivers/pc/keyboard.h>
+#include <arch/i386/descriptors/idt.h> // PIC_(M|S)_(CTRL|DATA)
+#include <arch/i386/isr.h> // registers_t
+#include <arch/i386/irq.h> // IRQ1_KEYBOARD
+#include <stdio.h>
 #include <sys/io.h> // inb, outb
 
 unsigned char keymap[128] = {
@@ -51,7 +51,7 @@ static void keyboard_callback(__attribute__((unused)) registers_t r) {
   /* Only print characters on keydown event that have
    * a non-zero mapping */
   if (keycode >= 0 && keymap[keycode]) {
-    terminal_putchar(keymap[keycode]);
+    putchar(keymap[keycode]);
   }
 }
 

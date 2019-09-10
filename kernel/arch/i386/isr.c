@@ -1,8 +1,7 @@
-#include <kernel/tty.h>
-#include <kernel/isr.h>
+#include <arch/i386/isr.h>
+#include <stdio.h>
 
-char const * fault_messages[] =
-{
+char const *fault_messages[] = {
   "Division By Zero",
   "Debug",
   "Non Maskable Interrupt",
@@ -42,13 +41,9 @@ char const * fault_messages[] =
 
 // interrupts.S : ISR handler stub.
 void isr_handler(registers_t regs) {
-  (void)regs;
-  //terminal_writestring("received soft interrupt !\n");
-  if(regs.int_no < 32)
-  {
-    terminal_writestring("Exception: ");
-    terminal_writestring(fault_messages[regs.int_no]);
-    terminal_writestring("\n");
+  if (regs.int_no < 32) {
+    printf("Exception: %s\n", fault_messages[regs.int_no]);
+    // busy looping (jmp, jmp, jmp, ...)
     for(;;);
   }
 }

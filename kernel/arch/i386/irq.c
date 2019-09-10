@@ -1,8 +1,7 @@
-#include <stdint.h>
-#include <kernel/irq.h>
-#include <kernel/idt.h> // PIC_(M|S)_CTRL
-#include <kernel/tty.h>
+#include <arch/i386/irq.h>
+#include <arch/i386/descriptors/idt.h> // PIC_(M|S)_CTRL
 #include <sys/io.h>
+#include <stdint.h>
 
 isr_t interrupt_handlers[IDT_SIZE] = {0};
 
@@ -16,8 +15,7 @@ static void send_eoi(unsigned char const irq) {
 // interrupts.S : IRQ handler.
 void irq_handler(registers_t regs) {
   send_eoi(regs.int_no);
-  if (interrupt_handlers[regs.int_no] != 0)
-  {
+  if (interrupt_handlers[regs.int_no] != 0) {
     isr_t handler = interrupt_handlers[regs.int_no];
     handler(regs);
   }

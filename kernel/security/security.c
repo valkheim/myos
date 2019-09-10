@@ -12,7 +12,7 @@
 # include <stdio.h>
 #endif
 
-#include <kernel/security.h>
+#include <security/security.h>
 
 static void __attribute__ ((constructor)) __guard_setup(void) {
   unsigned char *p;

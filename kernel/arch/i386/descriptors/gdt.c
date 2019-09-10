@@ -1,10 +1,9 @@
-#include <kernel/gdt.h>
+#include <arch/i386/descriptors/gdt.h>
 
-// Implementation in gdt_flush.S
+// Implementation in load_gdt.S
 extern void load_gdt(uint32_t);
 
-gdt_entry_t gdt_entries[GDT_ENTRIES];
-gdt_ptr_t   gdt_ptr;
+gdt_entry_t gdt_entries[GDT_SIZE];
 
 // Set the value of one GDT entry.
 static void gdt_set_gate(int32_t num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran) {
@@ -21,7 +20,9 @@ static void gdt_set_gate(int32_t num, uint32_t base, uint32_t limit, uint8_t acc
 
 // Init GDT entries
 void init_gdt(void) {
-  gdt_ptr.limit = (sizeof(gdt_entry_t) * GDT_ENTRIES) - 1;
+  gdt_ptr_t gdt_ptr;
+
+  gdt_ptr.limit = (sizeof(gdt_entry_t) * GDT_SIZE) - 1;
   gdt_ptr.base  = (uint32_t)&gdt_entries;
 
   gdt_set_gate(0, 0, 0, 0, 0);                // Null segment

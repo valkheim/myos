@@ -2,7 +2,7 @@
 #define _KERNEL_IRQ_H
 
 #include <stdint.h>
-#include <kernel/isr.h> // registers_t
+#include <arch/i386/isr.h> // registers_t
 
 #define IRQ0_PIT       (32) // 0x20
 #define IRQ1_KEYBOARD  (33) // 0x21

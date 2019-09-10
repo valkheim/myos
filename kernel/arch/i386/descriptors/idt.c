@@ -1,8 +1,11 @@
-#include <kernel/idt.h>
-#include <kernel/isr.h> // ISR handlers
-#include <kernel/irq.h> // IRQ handlers
+#include <arch/i386/descriptors/idt.h>
+#include <arch/i386/descriptors/gdt.h>
+#include <arch/i386/isr.h> // ISR handlers
+#include <arch/i386/irq.h> // IRQ handlers
 #include <sys/io.h> // inb, outb
+#include <string.h> // memset
 
+// Implementation in load_idt.S
 extern void load_idt(uint32_t);
 
 idt_entry_t idt_entries[IDT_SIZE] = {0};
@@ -15,8 +18,8 @@ static void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags
   idt_entries[num].sel = sel;
   // Zero and flags
   idt_entries[num].always0 = 0;
-    // We must uncomment the OR below when we get to using user-mode.
-    // It sets the interrupt gate's privilege level to 3.
+  // We must uncomment the OR below when we get to using user-mode.
+  // It sets the interrupt gate's privilege level to 3.
   idt_entries[num].flags = flags /* | 0x60 */;
 }
 
@@ -24,10 +27,19 @@ void init_idt(void) {
   idt_ptr_t idt_ptr;
 
   // Init idt pointer
-  idt_ptr.limit = sizeof(idt_entry_t) * IDT_SIZE -1;
-  idt_ptr.base  = (uint32_t)&idt_entries;
+  idt_ptr.limit = sizeof(*idt_entries) * IDT_SIZE -1;
+  idt_ptr.base = (uint32_t)&idt_entries;
+
+  // clear idt entries
+  memset(&idt_entries, 0, sizeof(*idt_entries) * IDT_SIZE);
 
   // Remap PIC
+
+  uint8_t m1, m2;
+
+  // save masks
+  m1 = inb(PIC_M_DATA);
+  m2 = inb(PIC_S_DATA);
 
   // ICW1 - begin initialization (0x11 being the initialise command)
   outb(PIC_M_CTRL, ICW1_INIT | ICW1_ICW4); // 0x10 | 0x01 = 0x11
@@ -49,6 +61,10 @@ void init_idt(void) {
   // mask interrupts
   outb(PIC_M_DATA, ICW4_8086);
   outb(PIC_S_DATA, ICW4_8086);
+
+  // restore saved masks.
+  outb(PIC_M_DATA, m1);
+  outb(PIC_S_DATA, m2);
 
   // CPU interrupt layout
   idt_set_gate( 0, (uint32_t)isr0 , 0x08, 0x8E); // Divide by zero

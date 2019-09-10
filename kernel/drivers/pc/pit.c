@@ -1,13 +1,13 @@
-#include <kernel/pit.h>
-#include <kernel/isr.h> // registers_t
-#include <kernel/irq.h> // IRQ0_PIT
-#include <kernel/tty.h>
+#include <drivers/pc/pit.h>
+#include <arch/i386/isr.h> // registers_t
+#include <arch/i386/irq.h> // IRQ0_PIT
+//#include <stdio.h> // printf
 #include <sys/io.h>
 
 uint32_t tick = 0;
 
 static void timer_callback(__attribute__((unused)) registers_t regs) {
-  //terminal_writestring("Tick\n");
+  //printf("Tick\n");
   tick++;
 }
 

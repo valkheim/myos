@@ -7,7 +7,7 @@
 // code and data segment descriptors for the kernel
 // code and data segment descriptors for the user mode
 // null entry
-#define GDT_ENTRIES (5)
+#define GDT_SIZE (5)
 
 // This structure contains the value of one GDT entry.
 // We use the attribute 'packed' to tell GCC not to change

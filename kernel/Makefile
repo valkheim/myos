@@ -20,7 +20,17 @@ LIBS:=$(LIBS) -nostdlib -lk -lgcc
 
 ARCHDIR=arch/$(HOSTARCH)
 
+KERNEL_ROOT=.
+
+KERNEL_ARCH_CFLAGS=
+KERNEL_ARCH_CPPFLAGS=
+KERNEL_ARCH_LDFLAGS=
+KERNEL_ARCH_LIBS=
+
 include $(ARCHDIR)/make.config
+include $(KERNEL_ROOT)/drivers/vga/make.config
+include $(KERNEL_ROOT)/drivers/pc/make.config
+include $(KERNEL_ROOT)/security/make.config
 
 CFLAGS:=$(CFLAGS) $(KERNEL_ARCH_CFLAGS)
 CPPFLAGS:=$(CPPFLAGS) $(KERNEL_ARCH_CPPFLAGS)
@@ -29,16 +39,8 @@ LIBS:=$(LIBS) $(KERNEL_ARCH_LIBS)
 
 KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
+kernel/terminal.o \
 kernel/kernel.o \
-kernel/idt_flush.o \
-kernel/interrupts.o \
-kernel/gdt_flush.o \
-kernel/gdt.o \
-kernel/idt.o \
-kernel/isr.o \
-kernel/irq.o \
-kernel/pit.o \
-kernel/keyboard.o \
 
 MM_OBJS=\
 

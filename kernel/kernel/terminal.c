@@ -1,32 +1,18 @@
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
-
-#include <kernel/tty.h>
+#include <kernel/terminal.h>
+#include <drivers/vga/vga.h>
 #include <sys/io.h>
-
-#include "vga.h"
+#include <string.h>
 
 static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
-static uint16_t* const VGA_MEMORY = (uint16_t*) 0xB8000;
+static uint16_t* const VGA_MEMORY = (uint16_t*)0xB8000;
 
 static size_t terminal_row;
 static size_t terminal_column;
 static uint8_t terminal_color;
 static uint16_t* terminal_buffer;
 
-static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
-  return fg | bg << 4;
-}
-
-static inline uint16_t vga_entry(unsigned char uc, uint8_t color) {
-  return (uint16_t) uc | (uint16_t) color << 8;
-}
-
-static void move_cursor()
-{
+static void move_cursor() {
   uint16_t cursor = terminal_row * VGA_WIDTH + terminal_column;
   outb(0x3D4, 14); // Tell the VGA board we are setting the high cursor byte.
   outb(0x3D5, cursor >> 8); // Send the high cursor byte.
@@ -35,8 +21,7 @@ static void move_cursor()
 }
 
 static void scroll(void) {
-  if (terminal_row >= VGA_HEIGHT)
-  {
+  if (terminal_row >= VGA_HEIGHT) {
     size_t i;
     for (i = 0 * VGA_WIDTH; i < (VGA_HEIGHT - 1) * VGA_WIDTH; ++i)
       terminal_buffer[i] = terminal_buffer[i + 80];
@@ -46,7 +31,7 @@ static void scroll(void) {
   }
 }
 
-void terminal_initialize(void) {
+void init_terminal(void) {
   terminal_row = 0;
   terminal_column = 0;
   terminal_color = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
@@ -93,11 +78,11 @@ void terminal_putchar(char c) {
   move_cursor();
 }
 
-void terminal_write(const char* data, size_t size) {
+void terminal_write(char const *data, size_t size) {
   for (size_t i = 0; i < size; i++)
     terminal_putchar(data[i]);
 }
 
-void terminal_writestring(const char* data) {
+void terminal_writestring(char const *data) {
   terminal_write(data, strlen(data));
 }
