@@ -12,6 +12,28 @@ static bool print(const char* data, size_t length) {
   return true;
 }
 
+static size_t print_nbr(long n)
+{
+  size_t printed;
+  long  div;
+
+  div = 1;
+  if (n < 0) {
+    n = -n;
+    putchar('-');
+  }
+  while (n / div >= 10)
+    div *= 10;
+  printed = 0;
+  while (div > 0) {
+    putchar((char) (n / div + '0'));
+    n = n % div;
+    div /= 10;
+    printed++;
+  }
+  return printed;
+}
+
 int printf(const char* restrict format, ...) {
   va_list parameters;
   va_start(parameters, format);
@@ -61,6 +83,10 @@ int printf(const char* restrict format, ...) {
       if (!print(str, len))
         return -1;
       written += len;
+    } else if (*format == 'd') {
+      format++;
+      int d = (int) va_arg(parameters, int);
+      written += print_nbr(d);
     } else {
       format = format_begun_at;
       size_t len = strlen(format);

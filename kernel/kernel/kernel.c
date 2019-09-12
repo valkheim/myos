@@ -31,7 +31,7 @@ void kernel_main(void) {
   /* test keyboard */
   init_keyboard(); // IRQ1
 
-  //PANIC("testing a panic");
+  PANIC("testing a panic");
 
   for (;;) {
     /* Halt CPU waiting for next interrupt */
