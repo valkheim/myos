@@ -4,6 +4,10 @@
 #include <arch/i386/irq.h> // IRQ1_KEYBOARD
 #include <stdio.h>
 #include <sys/io.h> // inb, outb
+#include <stdbool.h>
+
+bool is_capslock = false;
+bool is_shift = false;
 
 unsigned char keymap[128] = {
   0,  27, '1', '2', '3', '4', '5', '6', '7', '8',     /* 9 */
@@ -45,9 +49,19 @@ unsigned char keymap[128] = {
 };
 
 static void keyboard_callback(__attribute__((unused)) registers_t r) {
-  signed char keycode;
+  signed char const keycode = inb(0x60);
 
-  keycode = inb(0x60);
+  /*
+  if (keycode & 0x80) { // Key released
+    printf("released\n");
+    // Handle shift
+  } else { // Key pressed
+    printf("pressed\n");
+    // Handle shift
+    // Handle caps lock
+    // Check if letter and capialize (?)
+  }
+  */
   /* Only print characters on keydown event that have
    * a non-zero mapping */
   if (keycode >= 0 && keymap[keycode]) {
