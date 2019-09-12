@@ -1,5 +1,6 @@
 #include <arch/i386/descriptors/gdt.h>
 #include <arch/i386/descriptors/idt.h>
+#include <kernel/kernel.h>
 #include <kernel/terminal.h>
 #include <drivers/pc/pit.h>
 #include <drivers/pc/keyboard.h>
@@ -30,7 +31,7 @@ void kernel_main(void) {
   /* test keyboard */
   init_keyboard(); // IRQ1
 
-  /* */
+  //PANIC("testing a panic");
 
   for (;;) {
     /* Halt CPU waiting for next interrupt */
