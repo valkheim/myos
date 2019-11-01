@@ -3,5 +3,6 @@ This project has been bootstraped following the osdev wiki:
 - https://wiki.osdev.org/GCC_Cross-Compiler
 - https://wiki.osdev.org/Meaty_Skeleton
 - http://www.jamesmolloy.co.uk/tutorial_html/
+- https://wiki.osdev.org/James_Molloy%27s_Tutorial_Known_Bugs
 - https://alex.dzyoba.com/blog/os-interrupts/
 - https://stackoverflow.com/questions/37618111/keyboard-irq-within-an-x86-kernel
