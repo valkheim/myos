@@ -58,7 +58,7 @@ typedef struct __attribute__((packed)) {
 // This is in a format suitable for giving to 'lidt'.
 typedef struct __attribute__((packed)) {
    uint16_t limit;
-   uint32_t base;     // The address of the first element in our idt_entry_t array.
+   uint32_t base; // The address of the first element in our idt_entry_t array.
 } idt_ptr_t;
 
 void init_idt(void);
