@@ -31,6 +31,7 @@ include $(ARCHDIR)/make.config
 include $(KERNEL_ROOT)/drivers/vga/make.config
 include $(KERNEL_ROOT)/drivers/pc/make.config
 include $(KERNEL_ROOT)/security/make.config
+include $(KERNEL_ROOT)/mm/make.config
 
 CFLAGS:=$(CFLAGS) $(KERNEL_ARCH_CFLAGS)
 CPPFLAGS:=$(CPPFLAGS) $(KERNEL_ARCH_CPPFLAGS)
@@ -42,12 +43,9 @@ $(KERNEL_ARCH_OBJS) \
 kernel/terminal.o \
 kernel/kernel.o \
 
-MM_OBJS=\
-
 OBJS=\
 $(ARCHDIR)/crti.o \
 $(ARCHDIR)/crtbegin.o \
-$(MM_OBJS) \
 $(KERNEL_OBJS) \
 $(ARCHDIR)/crtend.o \
 $(ARCHDIR)/crtn.o \
@@ -56,7 +54,6 @@ LINK_LIST=\
 $(LDFLAGS) \
 $(ARCHDIR)/crti.o \
 $(ARCHDIR)/crtbegin.o \
-$(MM_OBJS) \
 $(KERNEL_OBJS) \
 $(LIBS) \
 $(ARCHDIR)/crtend.o \

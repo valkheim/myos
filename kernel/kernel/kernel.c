@@ -2,18 +2,23 @@
 #include <arch/i386/descriptors/idt.h>
 #include <kernel/kernel.h>
 #include <kernel/terminal.h>
+#include <mm/malloc.h>
 #include <drivers/pc/pit.h>
 #include <drivers/pc/keyboard.h>
 #include <stdio.h>
 
+extern uint32_t kernel_base;
+extern uint32_t kernel_end;
+
 void kernel_main(void) {
-  /* test terminal */
+
   init_terminal();
 
-  printf("Hello kernel !\n");
-  for (char c = 'a' ; c < 'd'; ++c)
-    printf("%c\n", c);
+  printf("Hello kernel!\n");
+  printf("Kernel base is 0x%x, end is 0x%x\n", &kernel_base, &kernel_end);
 
+  init_mm(&kernel_end);
+  mm_status();
   init_gdt();
   init_idt();
 

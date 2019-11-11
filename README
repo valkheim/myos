@@ -6,3 +6,4 @@ This project has been bootstraped following the osdev wiki:
 - https://wiki.osdev.org/James_Molloy%27s_Tutorial_Known_Bugs
 - https://alex.dzyoba.com/blog/os-interrupts/
 - https://stackoverflow.com/questions/37618111/keyboard-irq-within-an-x86-kernel
+- https://github.com/levex/osdev/blob/master/main.c (memory && paging)

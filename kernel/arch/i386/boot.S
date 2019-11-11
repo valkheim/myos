@@ -12,8 +12,8 @@
 .long FLAGS
 .long CHECKSUM
 
-# Reserve a stack for the initial thread.
-.section .bss
+# Reserve a stack for the initial thread. (bss)
+.section .bootstrap_stack
 .align 16
 stack_bottom:
 .skip 16384 # 16 KiB
