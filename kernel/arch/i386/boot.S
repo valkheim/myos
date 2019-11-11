@@ -13,7 +13,8 @@
 .long CHECKSUM
 
 # Reserve a stack for the initial thread. (bss)
-.section .bootstrap_stack
+# https://sourceware.org/binutils/docs-2.24/as/Section.html
+.section .bootstrap_stack,"aw",@nobits
 .align 16
 stack_bottom:
 .skip 16384 # 16 KiB

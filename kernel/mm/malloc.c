@@ -66,7 +66,7 @@ void init_mm(uint32_t *kernel_end)
 }
 
 void mm_status() {
-	printf("=== Memory status:")
+	printf("=== Memory status:");
 	printf("Memory used: %d bytes (memory_used)\n", memory_used);
 	printf("Memory free: %d bytes (heap_end - heap_begin - memory_used)\n", heap_end - heap_begin - memory_used);
 	printf("Heap size: %d bytes (heap_end - heap_begin)\n", heap_end - heap_begin);
