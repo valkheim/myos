@@ -12,16 +12,7 @@ uint32_t pheap_end = 0;
 uint8_t *pheap_desc = 0;
 uint32_t memory_used = 0;
 
-void* mymemset (void * ptr, int32_t value, int32_t num )
-{
-	int32_t* p=ptr;
-	while(num--)
-		*p++ = (int32_t)value;
-	return ptr;
-}
-
-void init_mm(uint32_t *kernel_end)
-{
+void init_mm(uint32_t *kernel_end) {
 /*
             +---------------------------+
             |                           |

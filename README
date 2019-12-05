@@ -7,3 +7,4 @@ This project has been bootstraped following the osdev wiki:
 - https://alex.dzyoba.com/blog/os-interrupts/
 - https://stackoverflow.com/questions/37618111/keyboard-irq-within-an-x86-kernel
 - https://github.com/levex/osdev/blob/master/main.c (memory && paging)
+- http://skelix.net/skelixos/index_en.html
