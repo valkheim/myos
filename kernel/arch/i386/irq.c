@@ -1,5 +1,5 @@
 #include <arch/i386/irq.h>
-#include <arch/i386/descriptors/idt.h> // PIC_(M|S)_CTRL
+#include <arch/i386/descriptors/idt.h> // PIC_(M|S)_CTRL, IDT_SIZE
 #include <sys/io.h>
 #include <stdint.h>
 

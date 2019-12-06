@@ -4,9 +4,7 @@
 #include <arch/i386/isr.h> // registers_t
 
 #define MAKE_PAGE (1)
-
-#define KHEAP_START         0xC0000000
-#define KHEAP_INITIAL_SIZE  0x100000
+#define PAGE_SIZE (0x1000) // 4096 bytes, `getconf PAGE_SIZE`
 
 typedef struct page {
    uint32_t present:  1;  // Page present in memory
@@ -18,44 +16,35 @@ typedef struct page {
    uint32_t frame:    20; // Frame address (shifted right 12 bits)
 } page_t;
 
+#define N_PAGES         (1024)
+#define N_PAGE_TABLES   (1024)
+
 typedef struct page_table {
-   page_t pages[1024];
+   page_t pages[N_PAGES];
 } page_table_t;
 
 typedef struct page_directory {
-  // pointers to page tables
-  page_table_t *tables[1024];
-   /**
-      Array of pointers to the pagetables above, but gives their *physical*
-      location, for loading into the CR3 register.
-   **/
-  uint32_t tablesPhysical[1024];
-   /**
-      The physical address of tablesPhysical. This comes into play
-      when we get our kernel heap allocated and the directory
-      may be in a different location in virtual memory.
-   **/
+  // Pointers to page tables
+  page_table_t *tables[N_PAGE_TABLES];
+  // Pointers the the above page tables giving the physical location
+  // for loading into the CR3 register
+  uint32_t tablesPhysical[N_PAGE_TABLES];
+  // Physical address of tablePhysical. This comes into play
+  // when we get our kernel heap allocated and the directory
+  // may be in a different location in virtual memory.
    uint32_t physicalAddr;
 } page_directory_t;
 
-/**
-   Sets up the environment, page directories etc and
-   enables paging.
-**/
+// Macros used in the bitset algorithms.
+#define INDEX_FROM_BIT(a) (a / (8 * 4))
+#define OFFSET_FROM_BIT(a) (a % (8 * 4))
+
+// Setup page directories, enable paging, ...
 void initialise_paging();
 
-/**
-   Causes the specified page directory to be loaded into the
-   CR3 register.
-**/
-void switch_page_directory(page_directory_t *new);
-
-/**
-   Retrieves a pointer to the page required.
-   If make == 1, if the page-table in which this page should
-   reside isn't created, create it!
-**/
-page_t *get_page(uint32_t address, int make, page_directory_t *dir);
+// Returns a pointer to the to the page entry for a particular address.
+// if make is MAKE_PAGE (1): create page if required
+page_t *get_page(uint32_t const address, int const make, page_directory_t * const dir);
 
 /**
    Handler for page faults.

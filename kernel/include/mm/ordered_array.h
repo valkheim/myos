@@ -6,13 +6,12 @@
 #define ORDERED_ARRAY_H
 
 #include <stdint.h>
-//#include "common.h"
 
 /**
    This array is insertion sorted - it always remains in a sorted state (between calls).
    It can store anything that can be cast to a void* -- so a uint32_t, or any pointer.
 **/
-typedef void* type_t;
+typedef void *type_t;
 /**
    A predicate should return nonzero if the first argument is less than the second. Else 
    it should return zero.

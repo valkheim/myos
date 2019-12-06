@@ -24,7 +24,6 @@
 // Enables registration of callbacks for interrupts or IRQs.
 // For IRQs, to ease confusion, use the #defines above as the
 // first parameter.
-typedef void (*isr_t)(registers_t);
 void register_interrupt_handler(uint8_t const n, isr_t const handler);
 
 // IRQ handlers

@@ -12,7 +12,36 @@ typedef struct {
   uint32_t eip, cs, eflags, useresp, ss; // Pushed by the processor automatically.
 } registers_t;
 
-extern char const * fault_messages[];
+typedef void (*isr_t)(registers_t);
+
+#define ISR0_DIVISION_BY_ZERO  (0) // 0x00
+#define ISR1                   (1) // 0x01
+#define ISR2                   (2) // 0x02
+#define ISR3                   (3) // 0x03
+#define ISR4                   (4) // 0x04
+#define ISR5                   (5) // 0x05
+#define ISR6                   (6) // 0x06
+#define ISR7                   (7) // 0x07
+#define ISR8                   (8) // 0x08
+#define ISR9                   (9) // 0x09
+#define ISR10                 (10) // 0x0A
+#define ISR11                 (11) // 0x0B
+#define ISR12                 (12) // 0x0C
+#define ISR13                 (13) // 0x0D
+#define ISR14_PAGE_FAULT      (14) // 0x0E
+// ISR number 15 is reserved
+#define ISR16                 (16) // 0x10
+#define ISR17                 (17) // 0x11
+#define ISR18                 (18) // 0x12
+#define ISR19                 (19) // 0x13
+#define ISR20                 (20) // 0x14
+// ISR numbers 21-29 are reserved
+#define ISR30                 (30) // 0x1E
+// ISR number 31 is reserved
+
+// Triple fault occurs on double fault handler exception
+
+extern char const * const fault_messages[];
 
 // ISR handlers
 extern void isr0 ();

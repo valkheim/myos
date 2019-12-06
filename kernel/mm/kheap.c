@@ -7,37 +7,29 @@
 #include "mm/kheap.h"
 #include "mm/paging.h"
 
-// end is defined in the linker script.
-extern uint32_t end;
-//uint32_t placement_address = (uint32_t)&end;
 extern uint32_t kernel_end;
 uint32_t placement_address = (uint32_t)&kernel_end;
 
 extern page_directory_t *kernel_directory;
-heap_t *kheap=0;
+
+heap_t *kheap = 0;
 
 uint32_t kmalloc_int(uint32_t sz, int align, uint32_t *phys)
 {
-    if (kheap != 0)
-    {
+    if (kheap != 0) {
         void *addr = alloc(sz, (uint8_t)align, kheap);
-        if (phys != 0)
-        {
+        if (phys != 0) {
             page_t *page = get_page((uint32_t)addr, 0, kernel_directory);
-            *phys = page->frame*0x1000 + ((uint32_t)addr&0xFFF);
+            *phys = page->frame * 0x1000 + ((uint32_t)addr&0xFFF);
         }
         return (uint32_t)addr;
-    }
-    else
-    {
-        if (align == 1 && (placement_address & 0xFFFFF000) )
-        {
+    } else {
+        if (align == 1 && (placement_address & 0xFFFFF000)) {
             // Align the placement address;
             placement_address &= 0xFFFFF000;
             placement_address += 0x1000;
         }
-        if (phys)
-        {
+        if (phys) {
             *phys = placement_address;
         }
         uint32_t tmp = placement_address;
@@ -46,39 +38,31 @@ uint32_t kmalloc_int(uint32_t sz, int align, uint32_t *phys)
     }
 }
 
-void kfree(void *p)
-{
+void kfree(void *p) {
     free(p, kheap);
 }
 
-uint32_t kmalloc_a(uint32_t sz)
-{
+uint32_t kmalloc_a(uint32_t sz) {
     return kmalloc_int(sz, 1, 0);
 }
 
-uint32_t kmalloc_p(uint32_t sz, uint32_t *phys)
-{
+uint32_t kmalloc_p(uint32_t sz, uint32_t *phys) {
     return kmalloc_int(sz, 0, phys);
 }
 
-uint32_t kmalloc_ap(uint32_t sz, uint32_t *phys)
-{
+uint32_t kmalloc_ap(uint32_t sz, uint32_t *phys) {
     return kmalloc_int(sz, 1, phys);
 }
 
-uint32_t kmalloc(uint32_t sz)
-{
+uint32_t kmalloc(uint32_t sz) {
     return kmalloc_int(sz, 0, 0);
 }
 
-static void expand(uint32_t new_size, heap_t *heap)
-{
+static void expand(uint32_t new_size, heap_t *heap) {
     // Sanity check.
     ASSERT(new_size > heap->end_address - heap->start_address);
-
     // Get the nearest following page boundary.
-    if (new_size&0xFFFFF000 != 0)
-    {
+    if ((new_size & 0xFFFFF000) != 0) {
         new_size &= 0xFFFFF000;
         new_size += 0x1000;
     }
@@ -92,7 +76,7 @@ static void expand(uint32_t new_size, heap_t *heap)
     uint32_t i = old_size;
     while (i < new_size)
     {
-        alloc_frame( get_page(heap->start_address+i, 1, kernel_directory),
+        alloc_frame(get_page(heap->start_address+i, MAKE_PAGE, kernel_directory),
                      (heap->supervisor)?1:0, (heap->readonly)?0:1);
         i += 0x1000 /* page size */;
     }
@@ -141,7 +125,7 @@ static int32_t find_smallest_hole(uint32_t size, uint8_t page_align, heap_t *hea
             uint32_t location = (uint32_t)header;
             int32_t offset = 0;
             if ((location+sizeof(header_t)) & 0xFFFFF000 != 0)
-                offset = 0x1000 /* page size */  - (location+sizeof(header_t))%0x1000;
+                offset = PAGE_SIZE - (location+sizeof(header_t))%0x1000;
             int32_t hole_size = (int32_t)header->size - offset;
             // Can we fit now?
             if (hole_size >= (int32_t)size)
@@ -168,8 +152,8 @@ heap_t *create_heap(uint32_t start, uint32_t end_addr, uint32_t max, uint8_t sup
     heap_t *heap = (heap_t*)kmalloc(sizeof(heap_t));
 
     // All our assumptions are made on startAddress and endAddress being page-aligned.
-    ASSERT(start%0x1000 == 0);
-    ASSERT(end_addr%0x1000 == 0);
+    ASSERT(start % PAGE_SIZE == 0);
+    ASSERT(end_addr % PAGE_SIZE == 0);
     
     // Initialise the index.
     heap->index = place_ordered_array( (void*)start, HEAP_INDEX_SIZE, &header_t_less_than);
@@ -178,10 +162,9 @@ heap_t *create_heap(uint32_t start, uint32_t end_addr, uint32_t max, uint8_t sup
     start += sizeof(type_t)*HEAP_INDEX_SIZE;
 
     // Make sure the start address is page-aligned.
-    if (start & 0xFFFFF000 != 0)
-    {
+    if (start & 0xFFFFF000 != 0) {
         start &= 0xFFFFF000;
-        start += 0x1000;
+        start += PAGE_SIZE;
     }
     // Write the start, end and max addresses into the heap structure.
     heap->start_address = start;
@@ -408,5 +391,4 @@ void free(void *p, heap_t *heap)
     // If required, add us to the index.
     if (do_add == 1)
         insert_ordered_array((void*)header, &heap->index);
-
 }
