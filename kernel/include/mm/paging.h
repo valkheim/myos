@@ -32,11 +32,11 @@ typedef struct page_directory {
   // Physical address of tablePhysical. This comes into play
   // when we get our kernel heap allocated and the directory
   // may be in a different location in virtual memory.
-   uint32_t physicalAddr;
+   uint32_t *physicalAddr;
 } page_directory_t;
 
 // Macros used in the bitset algorithms.
-#define INDEX_FROM_BIT(a) (a / (8 * 4))
+#define INDEX_FROM_BIT(a)  (a / (8 * 4))
 #define OFFSET_FROM_BIT(a) (a % (8 * 4))
 
 // Setup page directories, enable paging, ...
@@ -44,16 +44,15 @@ void initialise_paging();
 
 // Returns a pointer to the to the page entry for a particular address.
 // if make is MAKE_PAGE (1): create page if required
-page_t *get_page(uint32_t const address, int const make, page_directory_t * const dir);
+page_t *get_page(uint32_t const address, int8_t const make, page_directory_t * const dir);
 
-/**
-   Handler for page faults.
-**/
-void page_fault(registers_t *regs);
+// Function to allocate a frame.
+void alloc_frame(page_t * const page, int8_t const is_kernel, int8_t const is_writeable);
 
-/**
-   Makes a copy of a page directory.
-**/
+// Function to deallocate a frame.
+void free_frame(page_t * const page);
+
+// Makes a copy of a page_directory_t.
 page_directory_t *clone_directory(page_directory_t *src);
 
 #endif

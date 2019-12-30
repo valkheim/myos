@@ -11,9 +11,12 @@
 #define KHEAP_START         (0xC0000000)
 #define KHEAP_INITIAL_SIZE  (0x100000) // 1048576 bytes, 1024 KiB, 1 MiB
 
-#define HEAP_INDEX_SIZE   (0x20000) // 131072 bytes, 128 KiB
-#define HEAP_MIN_SIZE     (0x70000) // 458752 bytes, 448 KiB
-#define HEAP_MAGIC        (0xDEADC0DE)
+#define HEAP_INDEX_SIZE (0x20000) // 131072 bytes, 128 KiB
+#define HEAP_MIN_SIZE   (0x70000) // 458752 bytes, 448 KiB
+#define HEAP_MAGIC      (0xDEADC0DE)
+
+#define REQUEST_ALIGNMENT      (1)
+#define DONT_REQUEST_ALIGNMENT (0)
 
 typedef struct {
    uint32_t magic;  // Magic number, used for error checking and identification.
@@ -35,59 +38,22 @@ typedef struct {
    uint8_t readonly;       // Should extra pages requested by us be mapped as read-only?
 } heap_t;
 
-/**
-   Create a new heap.
-**/
-heap_t *create_heap(uint32_t start, uint32_t end, uint32_t max, uint8_t supervisor, uint8_t readonly);
+// Creates a heap
+heap_t *create_heap(uint32_t start, uint32_t const end_addr, uint32_t const max, uint8_t const supervisor, uint8_t const readonly);
 
-/**
-   Allocates a contiguous region of memory 'size' in size. If page_align==1, it creates that block starting
-   on a page boundary.
-**/
-void *alloc(uint32_t size, uint8_t page_align, heap_t *heap);
+// Allocates a contiguous region of memory 'size' in size.
+void *alloc(uint32_t size, uint8_t const page_align, heap_t * const heap);
 
-/**
-   Releases a block allocated with 'alloc'.
-**/
-void free(void *p, heap_t *heap);
+// General allocation function.
+uint32_t kmalloc(uint32_t const size);
+// Allocate a page-aligned `size` bytes chunk of memory
+uint32_t kmalloc_a(uint32_t const size);
+// Allocate a `size` bytes chunk of memory. Chunk physical address is written to `physical_address`
+uint32_t kmalloc_p(uint32_t const size, uint32_t * const physical_address);
+// Allocate a page-aligned `size` bytes chunk of memory. Chunk physical address is written to `physical_address`
+uint32_t kmalloc_ap(uint32_t const size, uint32_t * const physical_address);
 
-/**
-   Allocate a chunk of memory, sz in size. If align == 1,
-   the chunk must be page-aligned. If phys != 0, the physical
-   location of the allocated chunk will be stored into phys.
-
-   This is the internal version of kmalloc. More user-friendly
-   parameter representations are available in kmalloc, kmalloc_a,
-   kmalloc_ap, kmalloc_p.
-**/
-uint32_t kmalloc_int(uint32_t sz, int align, uint32_t *phys);
-
-/**
-   Allocate a chunk of memory, sz in size. The chunk must be
-   page aligned.
-**/
-uint32_t kmalloc_a(uint32_t sz);
-
-/**
-   Allocate a chunk of memory, sz in size. The physical address
-   is returned in phys. Phys MUST be a valid pointer to uint32_t!
-**/
-uint32_t kmalloc_p(uint32_t sz, uint32_t *phys);
-
-/**
-   Allocate a chunk of memory, sz in size. The physical address 
-   is returned in phys. It must be page-aligned.
-**/
-uint32_t kmalloc_ap(uint32_t sz, uint32_t *phys);
-
-/**
-   General allocation function.
-**/
-uint32_t kmalloc(uint32_t sz);
-
-/**
-   General deallocation function.
-**/
+// General deallocation function.
 void kfree(void *p);
 
 #endif // KHEAP_H

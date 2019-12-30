@@ -2,6 +2,7 @@
 .global copy_page_physical
 .type copy_page_physical, @function
 
+# uint32_t *copy_page_physical(uint32_t *src, uint32_t *dst);
 copy_page_physical:
 	push %ebx # save the base pointer (see c declaration (__cdecl))
 	pushf # save eflags

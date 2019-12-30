@@ -2,8 +2,10 @@
 //             Written for JamesM's kernel development tutorials.
 
 #include <stdio.h>
-#include "mm/paging.h"
-#include "mm/kheap.h"
+#include <string.h> // memset
+#include <mm/paging.h>
+#include <mm/kheap.h>
+#include <arch/i386/irq.h>
 
 // The kernel's page directory (consistent between tasks)
 page_directory_t *kernel_directory = 0;
@@ -14,6 +16,8 @@ page_directory_t *current_directory = 0;
 // Defined in kheap.c
 extern uint32_t placement_address;
 extern heap_t *kheap;
+
+extern uint32_t *copy_page_physical(uint32_t src, uint32_t dst);
 
 // A bitset of frames - used or free.
 uint32_t *frames;
@@ -35,38 +39,27 @@ static void clear_frame(uint32_t frame_addr) {
     frames[idx] &= ~(0x1 << off);
 }
 
-// Static function to test if a bit is set.
-static uint32_t test_frame(uint32_t frame_addr) {
-    uint32_t frame = frame_addr / PAGE_SIZE;
-    uint32_t idx = INDEX_FROM_BIT(frame);
-    uint32_t off = OFFSET_FROM_BIT(frame);
-    return (frames[idx] & (0x1 << off));
-}
-
 // Static function to find the first free frame.
-static uint32_t first_frame() {
-    for (uint32_t i = 0 ; i < INDEX_FROM_BIT(nframes) ; i++) {
+static uint32_t first_frame(void) {
+    for (uint32_t i = 0; i < INDEX_FROM_BIT(nframes); ++i) {
         if (frames[i] != 0xFFFFFFFF) { // nothing free, exit early.
             // at least one bit is free here.
-            for (uint32_t j = 0; j < 32; j++) {
-                uint32_t toTest = 0x1 << j;
-                if (!(frames[i] & toTest)) {
+            for (uint32_t j = 0; j < 32; ++j) {
+                if (!(frames[i] & (0x1 << j))) {
                     return i * 4 * 8 + j;
                 }
             }
         }
     }
+    PANIC("cannot find first frame");
+    return 0;
 }
 
-// Function to allocate a frame.
-void alloc_frame(page_t *page, int is_kernel, int is_writeable)
-{
-    if (page->frame != 0) {
-        return;
-    } else {
+void alloc_frame(page_t * const page, int8_t const is_kernel, int8_t const is_writeable) {
+    if (page->frame == 0 ) {
         uint32_t idx = first_frame();
         if (idx == (uint32_t) -1) { // uint32 by 1 underflow -> u32int max value
-            // PANIC! no free frames!!
+            PANIC("No free frames");
         }
         set_frame(idx * PAGE_SIZE);
         page->present = 1;
@@ -76,10 +69,9 @@ void alloc_frame(page_t *page, int is_kernel, int is_writeable)
     }
 }
 
-// Function to deallocate a frame.
-void free_frame(page_t *page) {
+void free_frame(page_t * const page) {
     uint32_t frame;
-    if (!(frame=page->frame)) {
+    if (!(frame = page->frame)) {
         return;
     } else {
         clear_frame(frame);
@@ -87,14 +79,14 @@ void free_frame(page_t *page) {
     }
 }
 
-page_t *get_page(uint32_t const address, int const make, page_directory_t * const dir) {
+page_t *get_page(uint32_t const address, int8_t const make, page_directory_t * const dir) {
     // Generate page index from address
-    uint32_t const index = address / 0x1000;
+    uint32_t const index = address / PAGE_SIZE;
     // Find the page table containing this address.
-    uint32_t table_idx = index / 1024;
+    uint32_t const table_idx = index / N_PAGES;
 
     if (dir->tables[table_idx]) { // If this table is already assigned
-        return &dir->tables[table_idx]->pages[index % 1024];
+        return &dir->tables[table_idx]->pages[index % N_PAGES];
     } else if (make) { // Create page
         uint32_t tmp;
 
@@ -111,34 +103,6 @@ page_t *get_page(uint32_t const address, int const make, page_directory_t * cons
     }
 }
 
-void page_fault(registers_t *regs)
-{
-    // A page fault has occurred.
-    // The faulting address is stored in the CR2 register.
-    uint32_t faulting_address;
-    asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
-    
-    // The error code gives us details of what happened.
-    int present   = !(regs->err_code & 0x1); // Page not present
-    int rw = regs->err_code & 0x2;           // Write operation?
-    int us = regs->err_code & 0x4;           // Processor was in user-mode?
-    int reserved = regs->err_code & 0x8;     // Overwritten CPU-reserved bits of page entry?
-    int id = regs->err_code & 0x10;          // Caused by an instruction fetch?
-
-    // Output an error message.
-    printf("Page fault! ( ");
-    if (present)
-      printf("present ");
-    if (rw)
-      printf("read-only ");
-    if (us)
-      printf("user-mode ");
-    if (reserved)
-      printf("reserved ");
-    printf(") at 0x%x - EIP: %x\n", faulting_address, regs->eip);
-    PANIC("Page fault");
-}
-
 static page_table_t *clone_table(page_table_t *src, uint32_t *physAddr) {
     // Make a new page table, which is page aligned.
     page_table_t *table = (page_table_t*)kmalloc_ap(sizeof(page_table_t), physAddr);
@@ -147,7 +111,7 @@ static page_table_t *clone_table(page_table_t *src, uint32_t *physAddr) {
     memset(table, 0, sizeof(page_directory_t));
 
     // For every entry in the table...
-    for (uint16_t i = 0; i < N_PAGES; i++) {
+    for (uint16_t i = 0; i < N_PAGES; ++i) {
         // If the source entry has a frame associated with it...
         if (!src->pages[i].frame)
             continue;
@@ -178,13 +142,13 @@ page_directory_t *clone_directory(page_directory_t *src) {
     memset(dir, 0, sizeof(page_directory_t));
 
     // Get the offset of tablesPhysical from the start of the page_directory_t structure.
-    uint32_t offset = (uint32_t)dir->tablesPhysical - (uint32_t)dir;
+    uint32_t const offset = (uint32_t)dir->tablesPhysical - (uint32_t)dir;
 
     // Then the physical address of dir->tablesPhysical is:
-    dir->physicalAddr = physical_address + offset;
+    dir->physicalAddr = (uint32_t *)(physical_address + offset);
 
     // Go through each page table. If the page table is in the kernel directory, do not make a new copy.
-    for (uint16_t i = 0; i < N_PAGE_TABLES; i++) {
+    for (uint16_t i = 0; i < N_PAGE_TABLES; ++i) {
         if (!src->tables[i])
             continue;
 
@@ -203,7 +167,7 @@ page_directory_t *clone_directory(page_directory_t *src) {
 }
 
 // Load the page directory into the CR3 register
-static void switch_page_directory(page_directory_t const * const dir) {
+static void switch_page_directory(page_directory_t * const dir) {
     uint32_t cr0;
 
     current_directory = dir;
@@ -213,16 +177,44 @@ static void switch_page_directory(page_directory_t const * const dir) {
     asm volatile("mov %0, %%cr0":: "r"(cr0));
 }
 
+static void pagefault_callback(registers_t regs) {
+    // A page fault has occurred.
+    // The faulting address is stored in the CR2 register.
+    uint32_t faulting_address;
+    asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
+    
+    // The error code gives us details of what happened.
+    int32_t present = !(regs.err_code & 0x1); // Page not present
+    int32_t rw = regs.err_code & 0x2;           // Write operation?
+    int32_t us = regs.err_code & 0x4;           // Processor was in user-mode?
+    int32_t reserved = regs.err_code & 0x8;     // Overwritten CPU-reserved bits of page entry?
+    int32_t id = regs.err_code & 0x10;          // Caused by an instruction fetch?
+
+    // Output an error message.
+    printf("Page fault! ( ");
+    if (present)
+      printf("present ");
+    if (rw)
+      printf("read-only ");
+    if (us)
+      printf("user-mode ");
+    if (reserved)
+      printf("reserved ");
+    printf("id: %d", id);
+    printf(") at 0x%x - EIP: %x\n", faulting_address, regs.eip);
+    PANIC("Page fault");
+}
+
 void initialise_paging(void) {
     // Size of physical memory.
     uint32_t mem_end_page = 0x1000000; // 16777216 bytes or 16 MiB
     
     nframes = mem_end_page / PAGE_SIZE;
-    frames = kmalloc(INDEX_FROM_BIT(nframes));
+    frames = (uint32_t *)kmalloc(INDEX_FROM_BIT(nframes));
     memset(frames, 0, INDEX_FROM_BIT(nframes));
     
     // Let's make a page directory.
-    kernel_directory = kmalloc_a(sizeof(page_directory_t));
+    kernel_directory = (page_directory_t *)kmalloc_a(sizeof(page_directory_t));
     memset(kernel_directory, 0, sizeof(page_directory_t));
     kernel_directory->physicalAddr = kernel_directory->tablesPhysical;
 
@@ -250,7 +242,7 @@ void initialise_paging(void) {
         alloc_frame(get_page(location, MAKE_PAGE, kernel_directory), 0, 0);
 
     // Register page fault handler before enabling paging
-    register_interrupt_handler(ISR14_PAGE_FAULT, page_fault);
+    register_interrupt_handler(ISR14_PAGE_FAULT, &pagefault_callback);
 
     // Enable paging
     switch_page_directory(kernel_directory);

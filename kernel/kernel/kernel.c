@@ -4,6 +4,7 @@
 #include <kernel/terminal.h>
 #include <mm/malloc.h>
 #include <mm/paging.h>
+#include <mm/kheap.h>
 #include <drivers/pc/pit.h>
 #include <drivers/pc/keyboard.h>
 #include <stdio.h>
@@ -39,25 +40,29 @@ void kernel_main(void) {
 
   printf("kernel end is 0x%x\n", &kernel_end);
 
-  //  PANIC("testing a panic");
+  // PANIC("testing a panic");
 
-  uint32_t a = kmalloc(8);
+  uint32_t a = kmalloc(8); // Leaked after paging initalisation
+  printf("a=%x\n", a);
   initialise_paging();
-  uint32_t b = kmalloc(8);
+  uint32_t b0 = kmalloc(8);
+  printf("b0=%x\n", b0);
+  kfree((void *)b0);
+  uint32_t b1 = kmalloc(8);
+  printf("b0=%x\n", b0);
+
   uint32_t c = kmalloc(8);
-  printf("a=%x, b=%x, c=%x\n", a, b, c);
+  printf("c=%x\n", c);
+  kfree((void *)c);
+  kfree((void *)b1);
 
-/*
-  // Page fault not working ?! Have a segmentation fault on host (kind of page fault anyway)
+  // Page fault not working ?! Have a segmentation fault on host (kind of page fault anyway?)
   uint32_t *ptr = (uint32_t*)0x0;
-  uint32_t do_page_fault = *ptr; // force a page fault by reading location 0xA0000000
-*/
+  uint32_t __attribute__((unused)) do_page_fault = *ptr; // force a page fault by reading location 0xA0000000
 
-  kfree(c);
-  kfree(b);
   uint32_t d = kmalloc(12);
   printf("d=%x\n", d);
-
+  kfree((void *)d);
   
   for (;;) {
     /* Halt CPU waiting for next interrupt */

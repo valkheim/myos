@@ -3,14 +3,15 @@
 //                    Written for JamesM's kernel development tutorials.
 
 #include <stdio.h>
-#include "mm/ordered_array.h"
+#include <string.h> // memset
+#include <mm/ordered_array.h>
+#include <mm/kheap.h> // kfree
 
 int8_t standard_lessthan_predicate(type_t a, type_t b) {
     return (a < b) ? 1 : 0;
 }
 
-ordered_array_t create_ordered_array(uint32_t max_size, lessthan_predicate_t less_than)
-{
+ordered_array_t create_ordered_array(uint32_t max_size, lessthan_predicate_t less_than) {
     ordered_array_t to_ret;
     to_ret.array = (void*)kmalloc(max_size*sizeof(type_t));
     memset(to_ret.array, 0, max_size*sizeof(type_t));
@@ -20,8 +21,7 @@ ordered_array_t create_ordered_array(uint32_t max_size, lessthan_predicate_t les
     return to_ret;
 }
 
-ordered_array_t place_ordered_array(void *addr, uint32_t max_size, lessthan_predicate_t less_than)
-{
+ordered_array_t place_ordered_array(void *addr, uint32_t max_size, lessthan_predicate_t less_than) {
     ordered_array_t to_ret;
     to_ret.array = (type_t *)addr;
     memset(to_ret.array, 0, max_size*sizeof(type_t));
@@ -32,7 +32,7 @@ ordered_array_t place_ordered_array(void *addr, uint32_t max_size, lessthan_pred
 }
 
 void destroy_ordered_array(ordered_array_t *array) {
-//    kfree(array->array);
+    kfree(array->array);
 }
 
 void insert_ordered_array(type_t item, ordered_array_t *array) {
