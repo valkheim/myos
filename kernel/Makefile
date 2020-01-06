@@ -32,6 +32,7 @@ include $(KERNEL_ROOT)/drivers/vga/make.config
 include $(KERNEL_ROOT)/drivers/pc/make.config
 include $(KERNEL_ROOT)/security/make.config
 include $(KERNEL_ROOT)/mm/make.config
+include $(KERNEL_ROOT)/fs/make.config
 
 CFLAGS:=$(CFLAGS) $(KERNEL_ARCH_CFLAGS)
 CPPFLAGS:=$(CPPFLAGS) $(KERNEL_ARCH_CPPFLAGS)
