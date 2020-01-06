@@ -3,7 +3,7 @@
 
 #include <stdint.h> // uint32_t, uint8_t
 
-#define FS_FILENAME_SIZE (256)
+#define FS_FILENAME_SIZE (64)
 
 #define FS_FILE        (1)
 #define FS_DIRECTORY   (2)

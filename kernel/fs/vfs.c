@@ -1,7 +1,7 @@
 // https://github.com/Razbit/razos/blob/master/kernel/src/fs/vfs.c
 
 #include <stddef.h> // NULL
-#include <fs/vfs.h>
+#include "fs/vfs.h"
 
 // VFS root
 inode_t *fs_root = NULL;

@@ -1,3 +1,6 @@
 *.iso
 isodir
 sysroot
+tools/make_initrd
+tools/initrd.img
+vgcore*
