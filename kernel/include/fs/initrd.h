@@ -3,10 +3,21 @@
 
 #include "vfs.h"
 
+/*
+type can be:
+- FTW_F   (regular file)
+- FTW_SL  (symlink)
+- FTW_SLN (dangling symlink)
+- FTW_D   (directory)
+- FTW_DP  (directory)
+- FTW_DNR (directory which cant be read)
+see man 3 nftw, ftw.h
+*/
 typedef struct {
-  char      name[FS_FILENAME_SIZE];
-  uint32_t  offset;
+  int8_t    name[FS_FILENAME_SIZE];
+  uint8_t   type;
   uint32_t  size;
+  uint32_t  offset;
 } initrd_node_t;
 
 #endif
