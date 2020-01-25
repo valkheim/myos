@@ -2,5 +2,7 @@
 isodir
 sysroot
 tools/make_initrd
+tools/parse_initrd
 tools/initrd.img
+tools/initrd.img.gz
 vgcore*

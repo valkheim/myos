@@ -1,7 +1,11 @@
+#CC = clang -Weverything
+
 all: mkinitrd
 
 mkinitrd:
 	$(CC) -g make_initrd.c -o make_initrd
+	$(CC) -g parse_initrd.c -o parse_initrd
+	gzip initrd.img
 
 # https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
 tree:

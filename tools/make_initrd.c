@@ -1,4 +1,12 @@
-#define _XOPEN_SOURCE 700
+/*
+ * This is a tool for building a filesystem image disk. Given two arguments:
+ * - target directory
+ * - number of files
+ * it can build an initrd.img file containing contents and meta information
+ * about those file so we can use them latter while setting up the file system
+ */
+
+#define _XOPEN_SOURCE (700)
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -20,24 +28,30 @@ static uint32_t offset;
 
 static initrd_node_t *nodes;
 
-int8_t usage(char const * const filename) {
-    fprintf(stderr, "Usage: %s [DIRECTORY]...\n", filename);
+static int8_t usage(char const * const filename) {
+    fprintf(stderr, "Usage: %s [DIRECTORY] [NNODES]\n", filename);
     return -1;
 }
 
-static int register_node(char const *filepath, struct stat const *info, int const typeflag, struct FTW *pathinfo) {
+static int register_node(char const *filepath, struct stat const *info,
+                         int const typeflag,
+                         struct FTW * __attribute__((unused)) pathinfo) {
   static int nnode = 0;
-  double const bytes = (double)info->st_size; /* Not exact if large! */
+  intmax_t const bytes = info->st_size;
 
-  if (
-      typeflag != FTW_SLN && typeflag != FTW_DNR) {
-    puts(filepath);
+  if (typeflag == FTW_F || typeflag == FTW_D) {
+    fprintf(stdout, "Register node %s\n", filepath);
     memset(nodes[nnode].name, '\0', FS_FILENAME_SIZE);
     memcpy(nodes[nnode].name, filepath, FS_FILENAME_SIZE);
     nodes[nnode].size = bytes;
     nodes[nnode].type = typeflag;
-    nodes[nnode].offset = offset;
-    offset += bytes;
+    if (typeflag == FTW_F) {
+      nodes[nnode].offset = offset;
+      fprintf(stdout, "\t node contents offset at 0x%x\n", offset);
+      offset += bytes;
+    } else {
+      nodes[nnode].offset = 0;
+    }
     ++nnode;
   }
 
@@ -45,7 +59,6 @@ static int register_node(char const *filepath, struct stat const *info, int cons
 }
 
 static int traversal(char const * const dirpath) {
-  /* Invalid directory path? */
   if (dirpath == NULL || *dirpath == '\0')
     return errno = EINVAL;
 
@@ -55,23 +68,23 @@ static int traversal(char const * const dirpath) {
 }
 
 static void write_nodes(void) {
-  FILE *wfile = fopen(IMAGE, "w");
-  fwrite(nodes, sizeof(initrd_node_t), nnodes, wfile);
-  fclose(wfile);
-}
-
-static void write_files(void) {
   uint8_t *buf = NULL;
   FILE *infile = NULL;
   FILE *wfile = fopen(IMAGE, "w");
 
+  // Write header
+  fwrite(nodes, sizeof(initrd_node_t), nnodes, wfile);
+
+  // Write files
   for (uint_fast64_t i = 0 ; i < nnodes ; ++i) {
-    buf = malloc(nodes[i].size);
-    infile = fopen(nodes[i].name, "r");
-    fread(buf, 1, nodes[i].size, infile);
-    fwrite(buf, 1, nodes[i].size, wfile);
-    fclose(infile);
-    free(buf);
+    if (nodes[i].type == FTW_F) {
+      buf = malloc(nodes[i].size);
+      infile = fopen(nodes[i].name, "r");
+      fread(buf, 1, nodes[i].size, infile);
+      fwrite(buf, 1, nodes[i].size, wfile);
+      fclose(infile);
+      free(buf);
+    }
   }
   fclose(wfile);
 }
@@ -83,7 +96,11 @@ int main(int ac, char **av) {
   if (ac > 2)
     nnodes = atoi(av[2]);
 
+  fprintf(stdout, "Found %d nodes\n", nnodes);
+
   offset = sizeof(*nodes) * nnodes;
+
+  fprintf(stdout, "Header size 0x%x\n", offset);
 
   if ((nodes = malloc(offset)) == NULL) {
     fprintf(stderr, "Cannot allocate sufficient memory for nodes\n");
@@ -96,8 +113,6 @@ int main(int ac, char **av) {
   }
 
   write_nodes();
-
-  write_files();
 
   free(nodes);
 
