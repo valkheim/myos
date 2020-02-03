@@ -1,7 +1,3 @@
-// ordered_array.c -- Implementation for creating, inserting and deleting
-//                    from ordered arrays.
-//                    Written for JamesM's kernel development tutorials.
-
 #include <stdio.h>
 #include <string.h> // memset
 #include <mm/ordered_array.h>

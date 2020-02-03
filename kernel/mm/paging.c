@@ -1,6 +1,3 @@
-// paging.c -- Defines the interface for and structures relating to paging.
-//             Written for JamesM's kernel development tutorials.
-
 #include <stdio.h>
 #include <string.h> // memset
 #include <mm/paging.h>
