@@ -23,7 +23,7 @@
 
 // Ok let's assume we'll discover and write nnodes nodes...
 // You can override it using $(find . | wc -l) as av[2]
-static uint_least8_t nnodes;
+static uint8_t nnodes;
 static uint32_t offset;
 
 static initrd_node_t *nodes;
@@ -72,6 +72,8 @@ static void write_nodes(void) {
   FILE *infile = NULL;
   FILE *wfile = fopen(IMAGE, "w");
 
+  // Write nodes number
+  //fwrite(&nnodes, sizeof(nnodes), 1, wfile);
   // Write header
   fwrite(nodes, sizeof(initrd_node_t), nnodes, wfile);
 

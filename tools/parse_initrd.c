@@ -40,10 +40,13 @@ static void print_node(initrd_node_t const * const node,
   }
 }
 
-static void parse(char * const image, uint8_t const nnodes) {
+static void parse(char * const image) {
   int const fd = open(image, O_RDONLY);
   initrd_node_t node;
+  //int8_t nnodes;
 
+  //read(fd, &nnodes, sizeof(nnodes));
+  //fprintf(stdout, "Found %d nodes\n", nnodes);
   for (uint_least8_t i = 0 ; i < nnodes ; ++i) {
     pread(fd, &node, sizeof(node), sizeof(node) * i);
     print_node(&node, fd);
@@ -55,5 +58,5 @@ int main(int ac, char **av) {
   if (ac < 2)
     return usage(av[0]);
 
-  parse(av[1], (uint8_t)atoi(av[2]));
+  parse(av[1]);
 }
