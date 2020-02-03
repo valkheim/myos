@@ -6,3 +6,4 @@ tools/parse_initrd
 tools/initrd.img
 tools/initrd.img.gz
 vgcore*
+.vscode
